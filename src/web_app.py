@@ -22,7 +22,7 @@ def create_connection(db_file):
 def query_internal_db(streamer_name: str):
     with create_connection(PATH_TO_DATABASE) as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM  {} WHERE username=?", (streamer_name,))
+        cur.execute("SELECT * FROM  streamers WHERE username=?", (streamer_name,))
 
         rows = cur.fetchall()
         
