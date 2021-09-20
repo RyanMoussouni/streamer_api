@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 
 db_name = "streamers"
-PATH_TO_DATABASE = "streamers.db"
+PATH_TO_DATABASE = "mydatabase.db"
 
 def create_connection(db_file):
     conn = None
@@ -31,6 +31,7 @@ def query_internal_db(streamer_name: str):
         elif len(rows) == 1:
             res = {}
             username, streamingPlatform, streamingURL, profilePictureURL = rows[0]
+            print(res)
             res["username"] = username
             res["streamingPlatform"] = streamingPlatform
             res["streamingURL"] = streamingURL
@@ -45,7 +46,7 @@ def query_twitch_db(streamer_name: str):
 
     try:
         res = {}
-        res["steamingPlatform"] = "twitch"
+        res["streamingPlatform"] = "twitch"
         res["username"] = response["data"][0]["display_name"]
         res["profilePictureURL"] = response["data"][0]["profile_image_url"]
         res["streamingURL"] = "twitch.tv/{}".format(streamer_name)
@@ -58,11 +59,11 @@ def query_twitch_db(streamer_name: str):
 def update_internal_db(query_result):
     with create_connection(PATH_TO_DATABASE) as conn:
         cur = conn.cursor()
-        streamer = query_result["userName"], query_result["streamingPlatform"], query_result["streamingURL"], query_result["profilePictureURL"]
+        streamer = query_result["username"], query_result["streamingPlatform"], query_result["streamingURL"], query_result["profilePictureURL"]
         sql = '''UPDATE streamers
-                 SET username = ?
-                     streamingPlatform = ?
-                     streamingURL = ?
+                 SET username = ?,
+                     streamingPlatform = ?,
+                     streamingURL = ?,
                      profilePictureURL = ?'''
         cur.execute(sql, streamer)
         conn.commit()
@@ -94,7 +95,7 @@ def get_streamers():
         cur.execute("SELECT * FROM streamers")
         
         rows = cur.fetchall()
-    return rows
+    return json.dumps(rows)
 
 @app.route("/streamers/", methods=["POST"])
 def set_streamer():
