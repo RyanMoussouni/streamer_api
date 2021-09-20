@@ -38,6 +38,7 @@ def query_internal_db(streamer_name: str):
         else:
             raise Exception("Dupplicate data in the database")
     return res
+
 def query_twitch_db(streamer_name: str):
     command = "twitch api get users -q login={}".format(streamer_name)
     response = json.loads(os.popen(command).read())
@@ -88,7 +89,12 @@ def get_streamer(streamer_name: str):
 
 @app.route("/streamers/", methods=["GET"])
 def get_streamers():
-    return
+    with create_connection(PATH_TO_DATABASE) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM streamers")
+        
+        rows = cur.fetchall()
+    return rows
 
 @app.route("/streamers/", methods=["POST"])
 def set_streamer():
