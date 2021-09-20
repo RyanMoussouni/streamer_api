@@ -51,11 +51,20 @@ def query_twitch_db(streamer_name: str):
     except IndexError:
         #no data on the streamer
         res = {}
-    
     return res
 
 
 def update_internal_db(query_result):
+    with create_connection(PATH_TO_DATABASE) as conn:
+        cur = conn.cursor()
+        streamer = query_result["userName"], query_result["streamingPlatform"], query_result["streamingURL"], query_result["profilePictureURL"]
+        sql = '''UPDATE streamers
+                 SET username = ?
+                     streamingPlatform = ?
+                     streamingURL = ?
+                     profilePictureURL = ?'''
+        cur.execute(sql, streamer)
+        conn.commit()
     return
 
 @app.route("/", methods=["GET"])
